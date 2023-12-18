@@ -1,4 +1,5 @@
 #include "RouteCipher.h"
+#include <iostream>
 #include <vector>
 #include <string>
 
@@ -7,70 +8,61 @@ RouteCipher::RouteCipher(int key) {
 }
 
 std::string RouteCipher::encrypt(const std::string& plaintext) {
-    int numRows = key_, numCols = plaintext.length();
-    std::vector<std::vector<char>> matrix(numRows, std::vector<char>(numCols, ' '));
+    int length = plaintext.length();
+    int key = key_;  // Сохраняем значение ключа
+    int numRows = key;  // Используем сохраненное значение ключа
+    int numCols = (length + numRows - 1) / numRows;
+    std::vector<std::string> matrix(numRows, std::string(numCols, ' '));
 
-    int direction = 0;
-    int rowIndex = 0, colIndex = 0;
+    std::string encryptedText;
+    int charIndex = 0;
 
-    for (int i = 0; i < numCols; i++) {
-        if (rowIndex == 0 || rowIndex == numRows - 1)
-            direction = 1 - direction;
-        matrix[rowIndex][colIndex++] = plaintext[i];
-        if (direction)
-            rowIndex++;
-        else
-            rowIndex--;
+    for (int row = 0; row < numRows; row++) {
+        for (int col = 0; col < numCols; col++) {
+            if (charIndex < length) {
+                matrix[row][col] = plaintext[charIndex];
+                charIndex++;
+            } else {
+                matrix[row][col] = '.';
+            }
+        }
     }
 
-    std::string ciphertext;
-    for (int i = 0; i < numRows; i++)
-        for (int j = 0; j < numCols; j++)
-            if (matrix[i][j] != ' ')
-                ciphertext += matrix[i][j];
+    for (int col = 0; col < numCols; col++) {
+        for (int row = 0; row < numRows; row++) {
+            if (matrix[row][col] != '.') {
+                encryptedText += matrix[row][col];
+            }
+        }
+    }
 
-    return ciphertext;
+    return encryptedText;
 }
 
 std::string RouteCipher::decrypt(const std::string& ciphertext) {
-    int numRows = key_, numCols = ciphertext.length();
-    std::vector<std::vector<char>> matrix(numRows, std::vector<char>(numCols, ' '));
+    int length = ciphertext.length();
+    int key = key_;  // Сохраняем значение ключа
+    int numRows = key;  // Используем сохраненное значение ключа
+    int numCols = (length + numRows - 1) / numRows;
+    std::vector<std::string> matrix(numRows, std::string(numCols, ' '));
 
-    int direction = 0;  // Инициализация переменной direction
-    int rowIndex = 0, colIndex = 0;
+    std::string decryptedText;
+    int charIndex = 0;
 
-    for (int i = 0; i < numCols; i++) {
-        if (rowIndex == 0)
-            direction = 1;
-        if (rowIndex == numRows - 1)
-            direction = 0;
-        matrix[rowIndex][colIndex++] = '*';
-        if (direction)
-            rowIndex++;
-        else
-            rowIndex--;
+    for (int col = 0; col < numCols; col++) {
+        for (int row = 0; row < numRows; row++) {
+            matrix[row][col] = ciphertext[charIndex];
+            charIndex++;
+        }
     }
 
-    int index = 0;
-    for (int i = 0; i < numRows; i++)
-        for (int j = 0; j < numCols; j++)
-            if (matrix[i][j] == '*' && index < numCols)
-                matrix[i][j] = ciphertext[index++];
-
-    std::string plaintext;
-    rowIndex = 0, colIndex = 0;
-    for (int i = 0; i < numCols; i++) {
-        if (rowIndex == 0)
-            direction = 1;
-        if (rowIndex == numRows - 1)
-            direction = 0;
-        if (matrix[rowIndex][colIndex] != '*')
-            plaintext.push_back(matrix[rowIndex][colIndex++]);  // Использование push_back() для добавления символов
-        if (direction)
-            rowIndex++;
-        else
-            rowIndex--;
+    for (int row = 0; row < numRows; row++) {
+        for (int col = 0; col < numCols; col++) {
+            if (matrix[row][col] != '.') {
+                decryptedText += matrix[row][col];
+            }
+        }
     }
 
-    return plaintext;
+    return decryptedText;
 }
