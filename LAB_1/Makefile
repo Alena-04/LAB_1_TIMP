@@ -2,7 +2,7 @@
 CC = g++
 
 # Флаги компиляции
-CFLAGS = -Wall -Wextra -std=c++17 -I/home/stud/C++Projects/TIMP_1
+CFLAGS = -Wall -Wextra -std=c++17
 
 # Имя исполняемого файла
 EXEC = main
